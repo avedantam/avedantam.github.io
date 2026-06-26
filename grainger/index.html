@@ -673,9 +673,9 @@ function buildChips(){
     chip.innerHTML=`<span class="box">${check}</span><span class="nm">${d.name}</span><span class="mi">${d.milesWC} mi · port</span>`;
     const inp=document.createElement('input'); inp.type='checkbox'; inp.checked=d.west; if(isLA){inp.disabled=true;}
     chip.prepend(inp);
-    chip.addEventListener('click',e=>{
-      if(isLA||!c2.open) return;
-      d.west=!d.west; inp.checked=d.west; chip.classList.toggle('on',d.west);
+    inp.addEventListener('change',()=>{
+      if(isLA||!c2.open){inp.checked=d.west;return;}
+      d.west=inp.checked; chip.classList.toggle('on',d.west);
       renderC2();
     });
     wrap.appendChild(chip);
