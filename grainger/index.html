@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grainger — Re-Engineering an International Supply Chain · Teaching Module</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#161A1D; --slate:#3A444B; --slate-2:#6B767D;
+  --paper:#E9ECEE; --card:#FFFFFF; --card-2:#F4F6F7;
+  --line:#CDD5DA; --grid:#DEE3E7;
+  --red:#CE2B2B; --red-soft:#F6E0DF;
+  --steel:#134E78; --steel-2:#2E7CB0; --steel-soft:#E2ECF3;
+  --amber:#E0961A; --amber-soft:#FBEFD6;
+  --green:#1F7A55; --green-soft:#E0EFE7;
+  --display:"Archivo",-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --r:10px; --shadow:0 1px 0 rgba(22,26,29,.04),0 8px 24px -16px rgba(22,26,29,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--display); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:44px 44px; background-position:-1px -1px;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--slate-2);font-weight:500}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.012em;line-height:1.05}
+a{color:var(--steel)}
+button{font-family:inherit}
+
+/* ---------- header ---------- */
+header{padding:40px 0 26px;border-bottom:2px solid var(--ink);position:relative}
+.brandrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--ink);padding:4px 10px;border-radius:999px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.tag .dot{width:8px;height:8px;border-radius:2px;background:var(--red)}
+h1{font-size:clamp(34px,5.6vw,62px);margin:18px 0 0}
+h1 .thin{font-weight:500;color:var(--slate)}
+.lede{max-width:60ch;margin:14px 0 0;color:var(--slate);font-size:clamp(16px,2vw,19px)}
+.lede b{color:var(--ink);font-weight:700}
+.ribbon{display:flex;gap:0;margin-top:26px;border:1.5px solid var(--ink);border-radius:var(--r);overflow:hidden;background:var(--card);flex-wrap:wrap}
+.ribbon .cell{flex:1 1 0;min-width:150px;padding:14px 16px;border-right:1.5px solid var(--line)}
+.ribbon .cell:last-child{border-right:0}
+.ribbon .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate-2)}
+.ribbon .v{font-family:var(--mono);font-weight:700;font-size:clamp(20px,2.4vw,26px);margin-top:3px;letter-spacing:-.01em}
+.ribbon .v.pos{color:var(--green)} .ribbon .v.neg{color:var(--red)}
+.ribbon .s{font-size:12px;color:var(--slate-2);margin-top:1px}
+
+/* ---------- flow schematic ---------- */
+.flow-sec{padding:30px 0 6px}
+.flow-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.flow-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:8px 8px 4px;overflow:hidden}
+#flow{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;flex-wrap:wrap;padding:8px 12px 10px;font-family:var(--mono);font-size:11px;color:var(--slate);letter-spacing:.03em}
+.legend i{display:inline-block;width:22px;height:0;border-top-width:3px;border-top-style:solid;vertical-align:middle;margin-right:7px;border-radius:2px}
+.legend .li-red i{border-color:var(--red)}
+.legend .li-steel i{border-color:var(--steel)}
+.legend .li-amber i{border-color:var(--amber);border-top-style:dashed}
+.flow-note{font-size:13.5px;color:var(--slate);max-width:64ch;margin:2px 0 0}
+.flow-note b{color:var(--ink)}
+
+/* ---------- sections ---------- */
+section.decision{padding:46px 0;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+.sec-num{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--red);border:1.5px solid var(--red);border-radius:6px;padding:2px 8px;letter-spacing:.05em}
+.decision:nth-of-type(odd) .sec-num{color:var(--steel);border-color:var(--steel)}
+h2{font-size:clamp(24px,3.4vw,34px)}
+.sec-sub{color:var(--slate);max-width:64ch;margin:8px 0 0}
+.grid2{display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);gap:26px;margin-top:24px;align-items:start}
+@media(max-width:880px){.grid2{grid-template-columns:1fr}}
+
+.prose p{margin:0 0 13px;color:var(--slate);font-size:15px}
+.prose p b{color:var(--ink)}
+.prose .q{border-left:3px solid var(--amber);background:var(--amber-soft);padding:12px 14px;border-radius:0 8px 8px 0;color:var(--ink);font-size:14.5px}
+.prose .q b{font-weight:700}
+.formula-toggle{margin-top:14px}
+details.math{border:1px dashed var(--line);border-radius:8px;background:var(--card-2);margin-top:12px}
+details.math>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel);padding:11px 14px;font-weight:600}
+details.math>summary::-webkit-details-marker{display:none}
+details.math>summary::before{content:"▸ ";color:var(--slate-2)}
+details.math[open]>summary::before{content:"▾ "}
+details.math .body{padding:2px 14px 14px;font-family:var(--mono);font-size:12.5px;color:var(--slate);line-height:1.7}
+details.math .body code{color:var(--ink);background:#eef1f3;padding:1px 4px;border-radius:4px}
+
+/* control panel */
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.panel .ph{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1.5px solid var(--line);background:var(--card-2)}
+.panel .ph .t{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);font-weight:600}
+.btn-reset{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);background:var(--card);color:var(--slate);padding:5px 11px;border-radius:6px;cursor:pointer;transition:.15s}
+.btn-reset:hover{border-color:var(--ink);color:var(--ink)}
+.btn-reset:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+.ctrls{padding:16px 16px 6px}
+.ctrl{margin-bottom:17px}
+.ctrl .lab{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:7px}
+.ctrl .lab .name{font-size:13.5px;font-weight:600;color:var(--ink)}
+.ctrl .lab .val{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--steel);background:var(--steel-soft);padding:1px 8px;border-radius:6px}
+.ctrl .hint{font-size:11.5px;color:var(--slate-2);margin-top:5px;font-family:var(--mono);letter-spacing:.01em}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--steel-2) var(--p,50%),var(--grid) var(--p,50%));outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--card);border:3px solid var(--steel);box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;transition:.1s}
+input[type=range]::-webkit-slider-thumb:hover{border-color:var(--amber)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--card);border:3px solid var(--steel);cursor:pointer}
+input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:4px}
+
+/* toggle + checkboxes */
+.dc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+@media(max-width:520px){.dc-grid{grid-template-columns:1fr}}
+.dc-chip{display:flex;align-items:center;gap:9px;border:1.5px solid var(--line);border-radius:8px;padding:9px 11px;cursor:pointer;background:var(--card);transition:.13s;user-select:none}
+.dc-chip:hover{border-color:var(--slate-2)}
+.dc-chip.on{border-color:var(--amber);background:var(--amber-soft)}
+.dc-chip.lock{opacity:.95;cursor:default;border-color:var(--amber);background:var(--amber-soft)}
+.dc-chip input{position:absolute;opacity:0;pointer-events:none}
+.dc-chip .box{width:17px;height:17px;border-radius:5px;border:2px solid var(--slate-2);flex:0 0 auto;display:grid;place-items:center;transition:.13s}
+.dc-chip.on .box,.dc-chip.lock .box{border-color:var(--amber);background:var(--amber)}
+.dc-chip .box svg{width:11px;height:11px;opacity:0}
+.dc-chip.on .box svg,.dc-chip.lock .box svg{opacity:1}
+.dc-chip .nm{font-size:13px;font-weight:600}
+.dc-chip .mi{font-family:var(--mono);font-size:10.5px;color:var(--slate-2);margin-left:auto}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1.5px solid var(--line);border-radius:9px;margin:4px 16px 14px;background:var(--card-2)}
+.switch-row .lbl{font-size:14px;font-weight:700}
+.switch-row .sub{font-size:12px;color:var(--slate-2);font-family:var(--mono)}
+.switch{position:relative;width:52px;height:28px;flex:0 0 auto}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch .track{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:.18s}
+.switch .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.18s}
+.switch input:checked+.track{background:var(--amber)}
+.switch input:checked~.knob{left:27px}
+.switch input:focus-visible+.track{outline:2px solid var(--steel);outline-offset:2px}
+.adv-hd{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-2);padding:10px 16px;border-top:1px dashed var(--line);cursor:pointer;user-select:none}
+.adv-hd::before{content:"▸ "} details[open] .adv-hd::before{content:"▾ "}
+details summary.adv-hd{list-style:none}
+details summary.adv-hd::-webkit-details-marker{display:none}
+
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.kpi{border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);padding:15px 16px;position:relative;overflow:hidden}
+.kpi .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate-2)}
+.kpi .v{font-family:var(--mono);font-weight:700;font-size:clamp(26px,4.2vw,34px);margin-top:4px;letter-spacing:-.02em;line-height:1}
+.kpi .sub{font-size:12px;color:var(--slate-2);margin-top:6px;font-family:var(--mono)}
+.kpi.good .v{color:var(--green)} .kpi.bad .v{color:var(--red)} .kpi.hero .v{color:var(--steel)}
+.kpi .bar{position:absolute;left:0;bottom:0;height:4px;background:var(--steel-2);width:0;transition:width .35s ease}
+.kpi.good .bar{background:var(--green)} .kpi.bad .bar{background:var(--red)}
+.verdict{margin-top:12px;font-family:var(--mono);font-size:12.5px;border-radius:8px;padding:11px 13px;letter-spacing:.02em;line-height:1.5}
+.verdict.go{background:var(--green-soft);color:#0f5236;border:1px solid #bfe0cf}
+.verdict.no{background:var(--red-soft);color:#8e1d1d;border:1px solid #e9c4c2}
+.verdict b{font-weight:700}
+
+/* tables */
+.tbl-card{border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden;margin-top:18px}
+.tbl-card .cap{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);padding:11px 14px;border-bottom:1.5px solid var(--line);background:var(--card-2);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 14px;text-align:right;border-bottom:1px solid var(--grid)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-2);font-weight:600;background:#fbfcfc}
+tbody td.mono,tbody td:not(:first-child){font-family:var(--mono)}
+tbody tr:last-child td{border-bottom:0}
+tr.tot td{font-weight:700;background:#fbfcfc;border-top:1.5px solid var(--ink)}
+td.up{color:var(--red)} td.down{color:var(--green)}
+.delta{font-family:var(--mono);font-size:11px}
+
+/* charts */
+.chart-card{border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);padding:14px 16px 12px;margin-top:18px}
+.chart-card .ct{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:4px}
+.chart-card .cs{font-size:12px;color:var(--slate-2);margin:0 0 10px}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.clbl{font-family:var(--mono);font-size:10.5px;fill:var(--slate-2)}
+.cval{font-family:var(--mono);font-size:11px;font-weight:700}
+
+/* synthesis */
+.synth-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+@media(max-width:760px){.synth-cards{grid-template-columns:1fr}}
+.scard{border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);padding:18px;box-shadow:var(--shadow)}
+.scard .n{font-family:var(--mono);font-size:11px;color:var(--steel);letter-spacing:.1em}
+.scard h3{font-size:17px;margin:8px 0 7px}
+.scard p{font-size:13.5px;color:var(--slate);margin:0}
+.combined-strip{display:flex;gap:0;margin-top:24px;border:1.5px solid var(--ink);border-radius:var(--r);overflow:hidden;background:var(--card)}
+.combined-strip .c{flex:1;padding:16px 18px;border-right:1.5px solid var(--line)}
+.combined-strip .c:last-child{border-right:0}
+.combined-strip .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate-2)}
+.combined-strip .v{font-family:var(--mono);font-weight:700;font-size:clamp(20px,2.6vw,28px);margin-top:4px}
+.combined-strip .v.g{color:var(--green)}
+
+footer{padding:34px 0 60px;border-top:2px solid var(--ink);margin-top:30px}
+footer .src{font-size:12.5px;color:var(--slate-2);max-width:80ch;line-height:1.6}
+footer .src b{color:var(--slate)}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--slate-2);margin-bottom:8px}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandrow">
+      <span class="tag"><span class="dot"></span>Grainger Global Sourcing</span>
+      <span class="eyebrow">Operations &amp; Supply Chain · Quantitative Case Module</span>
+    </div>
+    <h1>Re-engineering an<br><span class="thin">international supply chain.</span></h1>
+    <p class="lede">A student team handed Grainger's steering committee two re-engineering proposals. The committee's answer was three words: <b>&ldquo;Show us the numbers.&rdquo;</b> Move the levers below and watch the freight, the inventory, and the return on investment respond in real time.</p>
+
+    <div class="ribbon" id="ribbon">
+      <div class="cell">
+        <div class="k">Decision 01 · Yantian ROI</div>
+        <div class="v pos" id="r-cons-roi">43.0%</div>
+        <div class="s">consolidation pilot</div>
+      </div>
+      <div class="cell">
+        <div class="k">Decision 02 · WCDC ROI</div>
+        <div class="v pos" id="r-wc-roi">34.5%</div>
+        <div class="s" id="r-wc-scope">serving Los Angeles</div>
+      </div>
+      <div class="cell">
+        <div class="k">US network cost / yr</div>
+        <div class="v" id="r-net-cost">$4.12M</div>
+        <div class="s" id="r-net-save">−$0.79M vs. today</div>
+      </div>
+      <div class="cell">
+        <div class="k">Combined first-year case</div>
+        <div class="v" id="r-combined">Both pass</div>
+        <div class="s">at case assumptions</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FLOW SCHEMATIC (signature) ============ -->
+<div class="flow-sec">
+  <div class="wrap">
+    <div class="flow-head">
+      <div>
+        <div class="eyebrow">Live network routing</div>
+        <h2 style="font-size:clamp(20px,2.6vw,26px);margin-top:6px">Where the containers actually go</h2>
+      </div>
+      <p class="flow-note" id="flow-note">Today every container rails inland to <b>Kansas City</b> first — including West-Coast volume that then turns around and ships back out to <b>Los Angeles</b>. That red line is the same cargo paying for the trip twice.</p>
+    </div>
+    <div class="flow-card">
+      <svg id="flow" viewBox="0 0 1100 430" role="img" aria-label="Schematic of Grainger's container flow from China through US distribution centers"></svg>
+      <div class="legend">
+        <span class="li-steel"><i></i>Primary flow (rail &amp; truck)</span>
+        <span class="li-red"><i></i>Double-haul: paid twice</span>
+        <span class="li-amber"><i></i>Re-routed via West-Coast DC</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DECISION 01 — CONSOLIDATION ============ -->
+<section class="decision" id="d1">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Consolidate in China</h2></div>
+    <p class="sec-sub">89% of cargo ships <b>factory-direct</b>: 300+ suppliers each loading their own containers, leaning on small, inefficient 20&prime; boxes. The pilot question is narrow — open one consolidation center at the port of <b>Yantian</b> and re-pack that volume into full 40&prime; containers. Does the freight saving cover the cost of running the center?</p>
+
+    <div class="grid2">
+      <div class="prose">
+        <p>A 20&prime; container holds about half the cargo of a 40&prime; box but costs roughly 80% as much — a <b>165% premium per cubic meter</b>. Yantian moves ~62,700 cbm a year across a mix of both. Consolidating lets Grainger fill 40&prime; boxes to 96% and retire the 20&prime; fleet.</p>
+        <p>Against that freight saving sit three new costs: a small amount of <b>inventory dwelling</b> at the center, a per-cbm <b>material-handling</b> charge to re-pack, and the <b>annual fixed cost</b> of running the operation. The one-time build is then compared to the annual saving for a first-year ROI.</p>
+        <div class="q"><b>The lever that matters:</b> almost all of the saving is freight from killing the 20&prime; containers. Inventory and re-packing barely move the total — confirm it by dragging the sliders.</div>
+
+        <details class="math">
+          <summary>Reveal the math</summary>
+          <div class="body">
+            pre-freight = <code>918×$600 + 612×$480</code> = $844,560<br>
+            consolidated vol = <code>cons% × 62,700</code><br>
+            containers = <code>vol ÷ (util × 67)</code>, all 40&prime;<br>
+            post-freight = <code>(cons + unconsolidated) containers × $600</code><br>
+            avg inventory = <code>cons.vol × dwell ÷ 365 ÷ 2</code><br>
+            consolidation cost = <code>holding + (vol×$1.40) + fixed opex</code><br>
+            ROI = <code>(pre − post) ÷ one-time build</code>
+          </div>
+        </details>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="ph"><span class="t">Yantian pilot · controls</span><button class="btn-reset" id="c1-reset">Reset to case</button></div>
+          <div class="ctrls">
+            <div class="ctrl">
+              <div class="lab"><span class="name">Share of volume consolidated</span><span class="val" id="c1-cons-v">85%</span></div>
+              <input type="range" id="c1-cons" min="40" max="100" step="1" value="85">
+              <div class="hint">remainder ships factory-direct in full 40&prime; boxes</div>
+            </div>
+            <div class="ctrl">
+              <div class="lab"><span class="name">Container utilization after consolidation</span><span class="val" id="c1-util-v">96%</span></div>
+              <input type="range" id="c1-util" min="83" max="100" step="1" value="96">
+              <div class="hint">minimum allowed fill is 83%</div>
+            </div>
+            <div class="ctrl">
+              <div class="lab"><span class="name">Annual cost to run the center</span><span class="val" id="c1-opex-v">$75,000</span></div>
+              <input type="range" id="c1-opex" min="0" max="200000" step="5000" value="75000">
+            </div>
+            <div class="ctrl">
+              <div class="lab"><span class="name">One-time cost to build it</span><span class="val" id="c1-fix-v">$250,000</span></div>
+              <input type="range" id="c1-fix" min="100000" max="600000" step="10000" value="250000">
+            </div>
+            <details>
+              <summary class="adv-hd">More assumptions</summary>
+              <div class="ctrls" style="padding-top:10px">
+                <div class="ctrl">
+                  <div class="lab"><span class="name">Dwell time at center</span><span class="val" id="c1-dwell-v">7 d</span></div>
+                  <input type="range" id="c1-dwell" min="0" max="7" step="1" value="7">
+                  <div class="hint">drives the (tiny) holding cost</div>
+                </div>
+                <div class="ctrl">
+                  <div class="lab"><span class="name">Re-pack handling cost</span><span class="val" id="c1-mh-v">$1.40/cbm</span></div>
+                  <input type="range" id="c1-mh" min="0" max="5" step="0.1" value="1.4">
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi good"><div class="k">Annual freight saving</div><div class="v" id="c1-save">$107,497</div><div class="sub" id="c1-save-sub">$844,560 → $737,063</div><div class="bar" id="c1-save-bar"></div></div>
+          <div class="kpi hero"><div class="k">First-year ROI</div><div class="v" id="c1-roi">43.0%</div><div class="sub">saving ÷ build cost</div><div class="bar" id="c1-roi-bar"></div></div>
+        </div>
+        <div class="verdict go" id="c1-verdict"><b>Justified.</b> One year of freight saving returns 43% of the build cost — and the center keeps paying every year after.</div>
+
+        <div class="chart-card">
+          <div class="ct">Cost stack · before vs. after consolidation</div>
+          <p class="cs">Freight collapses; a thin sliver of overhead replaces it.</p>
+          <svg class="chart" id="c1-chart" viewBox="0 0 520 210" aria-label="Before and after cost comparison for Yantian consolidation"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECISION 02 — WEST COAST DC ============ -->
+<section class="decision" id="d2">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Open a West-Coast import DC</h2></div>
+    <p class="sec-sub">A single national DC in Kansas City pools demand beautifully — but it forces West-Coast cargo to rail 1,570 miles inland, then truck back out. A new import DC at the port (the <b>WCDC</b>) can receive that cargo and serve the West directly. The catch: split the network and you lose pooling, so <b>safety stock and handling rise</b>. Which DCs should it serve?</p>
+
+    <div class="grid2">
+      <div class="prose">
+        <p>Assign a DC to the WCDC and its cargo skips the inland round-trip — a big <b>transport</b> win for Los Angeles, which sits 50 miles from the port instead of 1,620 from Kansas City. But every DC you peel off shrinks Kansas City's pool, and a second stocking point needs its own safety stock.</p>
+        <p>Try <b>Los Angeles alone</b> first — the case's recommended pilot. Then add <b>Dallas</b> and watch the ROI fall: Dallas is cheap to reach from Kansas City but expensive to truck from the coast, so it gives back more than it saves.</p>
+        <div class="q"><b>The tension to surface in class:</b> transport cost wants <i>more</i> decentralization; inventory pooling and handling want <i>less</i>. The right answer is wherever the two curves cross.</div>
+
+        <details class="math">
+          <summary>Reveal the math</summary>
+          <div class="body">
+            pooled σ = <code>√(Σ σᵢ²)</code> at each hub<br>
+            safety stock = <code>z(SL) × σ_month × √(lead+review)</code><br>
+            KC rail = <code>vol × 1,570 mi × $0.0018</code><br>
+            truck = <code>Σ (demandᵢ × milesᵢ) × $0.022</code><br>
+            handling = <code>KC vol×$3 + WC vol×$5 + WC opex</code><br>
+            ROI = <code>(today's cost − redesign) ÷ $2.3M build</code>
+          </div>
+        </details>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="ph"><span class="t">Network design · controls</span><button class="btn-reset" id="c2-reset">Reset to case</button></div>
+          <div class="switch-row">
+            <div><div class="lbl">Operate the West-Coast DC</div><div class="sub" id="c2-open-sub">on · serving 1 DC</div></div>
+            <label class="switch"><input type="checkbox" id="c2-open" checked><span class="track"></span><span class="knob"></span></label>
+          </div>
+          <div class="ctrls" id="c2-dcwrap" style="padding-top:2px">
+            <div class="eyebrow" style="margin-bottom:9px">DCs served by the West-Coast DC</div>
+            <div class="dc-grid" id="c2-dcs"></div>
+            <div class="ctrl" style="margin-top:18px">
+              <div class="lab"><span class="name">Targeted service level</span><span class="val" id="c2-sl-v">98%</span></div>
+              <input type="range" id="c2-sl" min="90" max="99.5" step="0.5" value="98">
+              <div class="hint">higher service ⇒ more safety stock at every hub</div>
+            </div>
+            <details>
+              <summary class="adv-hd">More assumptions</summary>
+              <div class="ctrls" style="padding-top:10px">
+                <div class="ctrl">
+                  <div class="lab"><span class="name">US holding cost</span><span class="val" id="c2-hold-v">$7.50/cbm</span></div>
+                  <input type="range" id="c2-hold" min="3" max="15" step="0.5" value="7.5">
+                </div>
+                <div class="ctrl">
+                  <div class="lab"><span class="name">WCDC build (one-time)</span><span class="val" id="c2-fix-v">$2.30M</span></div>
+                  <input type="range" id="c2-fix" min="1000000" max="4000000" step="100000" value="2300000">
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi good"><div class="k">Annual network saving</div><div class="v" id="c2-save">$793,942</div><div class="sub" id="c2-save-sub">vs. $4.92M today</div><div class="bar" id="c2-save-bar"></div></div>
+          <div class="kpi hero"><div class="k">First-year ROI</div><div class="v" id="c2-roi">34.5%</div><div class="sub">saving ÷ build cost</div><div class="bar" id="c2-roi-bar"></div></div>
+        </div>
+        <div class="verdict go" id="c2-verdict"></div>
+
+        <div class="chart-card">
+          <div class="ct">Cost components · today vs. redesign</div>
+          <p class="cs">Transport falls hard; inventory &amp; handling climb. Net of the two is the prize.</p>
+          <svg class="chart" id="c2-chart" viewBox="0 0 520 230" aria-label="Cost component comparison today versus redesign"></svg>
+        </div>
+
+        <div class="tbl-card">
+          <div class="cap">Operating cost breakdown · $/year</div>
+          <table id="c2-table">
+            <thead><tr><th>Component</th><th>Today (KC only)</th><th>Kansas City</th><th>West-Coast DC</th><th>Δ vs today</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SYNTHESIS ============ -->
+<section class="decision" id="d3">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Why the two moves belong together</h2></div>
+    <p class="sec-sub">Neither decision is only about the dollars on this page. Together they reposition Grainger for the growth that actually motivated the project.</p>
+
+    <div class="synth-cards">
+      <div class="scard"><div class="n">Complement A</div><h3>Pack once, for the right door</h3><p>Consolidation centers can build containers labeled <i>per destination</i> — Kansas City vs. the West Coast — so the WCDC barely needs to de-consolidate. Decision 01 lowers the handling penalty in Decision 02.</p></div>
+      <div class="scard"><div class="n">Complement B</div><h3>Move work upstream</h3><p>Once cargo is consolidated in China, kitting and quality checks can shift to low-cost ports instead of Kansas City — savings this single-port model never captures.</p></div>
+      <div class="scard"><div class="n">Complement C</div><h3>Reach new markets directly</h3><p>The same China centers can ship straight to Mexico, Canada, Asia and Latin America — the international growth that the Kansas-City-first network made prohibitively expensive.</p></div>
+    </div>
+
+    <div class="combined-strip">
+      <div class="c"><div class="k">Yantian pilot returns</div><div class="v g" id="s-c1">43.0%</div></div>
+      <div class="c"><div class="k">WCDC pilot returns</div><div class="v g" id="s-c2">34.5%</div></div>
+      <div class="c"><div class="k">Annual US network saving</div><div class="v" id="s-net">$793,942</div></div>
+      <div class="c"><div class="k">Recommendation at case values</div><div class="v" id="s-rec">Pursue both</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="kicker">Teaching module</div>
+    <p class="src">Built for classroom use as an interactive companion to <b>&ldquo;Grainger: Re-Engineering an International Supply Chain&rdquo;</b> (WDI Publishing, case W90C84 &amp; teaching note W90T84; Scalzitti &amp; Sinha, 2010). All figures are the case's own illustrative data and are reproduced here only to drive the analysis — the live model exactly recovers the teaching-note results (Yantian 43.0% ROI; West-Coast DC serving Los Angeles, 34.5% ROI). This tool does not redistribute the case text and is intended for the registered instructor's own teaching. Container, demand, and cost figures are artificial and illustrative per the case authors.</p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmt0=n=>'$'+Math.round(n).toLocaleString('en-US');
+const fmtM=n=>'$'+(n/1e6).toFixed(2)+'M';
+const pct=n=>(n*100).toFixed(1)+'%';
+function normInv(p){const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.3577518672690,-30.66479806614716,2.506628277459239],b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];const pl=0.02425,ph=1-pl;let q,r;if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}else if(p<=ph){q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}else{q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}}
+const SVGNS="http://www.w3.org/2000/svg";
+function el(tag,attrs){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+function setRangeFill(input){const min=+input.min,max=+input.max,v=+input.value;input.style.setProperty('--p',((v-min)/(max-min)*100)+'%');}
+
+/* ---------- case constants ---------- */
+const DCS=[
+ {name:'Kansas City', mean:20900, sd:6270, milesKC:0,    milesWC:1570, west:false},
+ {name:'Cleveland',   mean:17100, sd:5130, milesKC:800,  milesWC:2290, west:false},
+ {name:'New Jersey',  mean:24700, sd:7410, milesKC:1200, milesWC:2725, west:false},
+ {name:'Jacksonville',mean:15200, sd:4560, milesKC:1150, milesWC:2375, west:false},
+ {name:'Chicago',     mean:22800, sd:6840, milesKC:520,  milesWC:1980, west:false},
+ {name:'Greenville',  mean:15200, sd:4560, milesKC:940,  milesWC:2270, west:false},
+ {name:'Memphis',     mean:17100, sd:5130, milesKC:510,  milesWC:1745, west:false},
+ {name:'Dallas',      mean:22800, sd:6840, milesKC:500,  milesWC:1390, west:false},
+ {name:'Los Angeles', mean:34200, sd:10260,milesKC:1620, milesWC:50,   west:true },
+];
+const RAIL=0.0018, TRUCK=0.022, REVIEW=1, LEAD=3, VAR_KC=3, VAR_WC=5, WC_OPEX=350000;
+
+/* ---------- DECISION 1 : consolidation ---------- */
+const c1={cons:0.85, util:0.96, opex:75000, fix:250000, dwell:7, mh:1.4};
+const CAP40=67, CUR40=918, CUR20=612, F40=600, F20=480, YVOL=62700, UHOLD=5;
+function calcC1(){
+  const pre = CUR40*F40 + CUR20*F20;
+  const consVol = c1.cons*YVOL, uncVol=(1-c1.cons)*YVOL;
+  const cont = (consVol+uncVol)/(c1.util*CAP40);     // all 40' boxes
+  const post_freight = cont*F40;
+  const hold = (consVol*c1.dwell/365/2)*UHOLD;
+  const matc = consVol*c1.mh;
+  const consCost = hold+matc+c1.opex;
+  const post = post_freight+consCost;
+  const save = pre-post;
+  return {pre,post,post_freight,hold,matc,opex:c1.opex,consCost,save,roi:save/c1.fix};
+}
+function drawC1Chart(r){
+  const svg=$('#c1-chart'); svg.innerHTML='';
+  const W=520,H=210, x0=130, x1=300, top=18, bw=64, maxh=130;
+  const max=Math.max(r.pre,r.post);
+  const scale=v=>v/max*maxh;
+  const base=top+maxh;
+  // axis baseline
+  svg.appendChild(el('line',{x1:x0-18,y1:base,x2:480,y2:base,stroke:'var(--line)','stroke-width':1.5}));
+  function bar(cx,label,segs){
+    let y=base;
+    segs.forEach(s=>{ const h=scale(s.v); if(h<=0)return; y-=h;
+      svg.appendChild(el('rect',{x:cx,y:y,width:bw,height:h,fill:s.c,rx:1}));
+    });
+    const total=segs.reduce((a,b)=>a+b.v,0);
+    const t=el('text',{x:cx+bw/2,y:y-8,'text-anchor':'middle',class:'cval',fill:'var(--ink)'});t.textContent=fmt0(total);svg.appendChild(t);
+    const l=el('text',{x:cx+bw/2,y:base+18,'text-anchor':'middle',class:'clbl'});l.textContent=label;svg.appendChild(l);
+  }
+  bar(x0,'Before',[{v:r.pre,c:'var(--red)'}]);
+  bar(x1,'After',[
+    {v:r.post_freight,c:'var(--steel)'},
+    {v:r.consCost,c:'var(--amber)'}
+  ]);
+  // mini legend
+  const lg=[['var(--red)','freight (today)'],['var(--steel)','freight (consolidated)'],['var(--amber)','center overhead']];
+  lg.forEach((s,i)=>{const yy=top+i*20;
+    svg.appendChild(el('rect',{x:360,y:yy,width:12,height:12,fill:s[0],rx:2}));
+    const t=el('text',{x:378,y:yy+10,class:'clbl'});t.textContent=s[1];svg.appendChild(t);});
+}
+function renderC1(){
+  const r=calcC1();
+  $('#c1-cons-v').textContent=Math.round(c1.cons*100)+'%';
+  $('#c1-util-v').textContent=Math.round(c1.util*100)+'%';
+  $('#c1-opex-v').textContent=fmt0(c1.opex);
+  $('#c1-fix-v').textContent=fmt0(c1.fix);
+  $('#c1-dwell-v').textContent=c1.dwell+' d';
+  $('#c1-mh-v').textContent='$'+c1.mh.toFixed(2)+'/cbm';
+  $('#c1-save').textContent=fmt0(r.save);
+  $('#c1-save-sub').textContent=fmt0(r.pre)+' → '+fmt0(r.post);
+  $('#c1-roi').textContent=pct(r.roi);
+  $('#c1-save-bar').style.width=Math.max(0,Math.min(100,r.save/150000*100))+'%';
+  $('#c1-roi-bar').style.width=Math.max(0,Math.min(100,r.roi/1*100))+'%';
+  const kSave=$('#c1-save').closest('.kpi'); kSave.classList.toggle('good',r.save>=0); kSave.classList.toggle('bad',r.save<0);
+  const v=$('#c1-verdict');
+  if(r.roi>=0.15){v.className='verdict go';v.innerHTML='<b>Justified.</b> One year returns '+pct(r.roi)+' of the build cost — and the saving repeats every year after.';}
+  else if(r.save>0){v.className='verdict go';v.innerHTML='<b>Marginal.</b> It still saves '+fmt0(r.save)+'/yr, but payback on the build stretches past a comfortable horizon.';}
+  else {v.className='verdict no';v.innerHTML='<b>Not justified here.</b> Overhead now exceeds the freight saving — the center loses money at these settings.';}
+  drawC1Chart(r);
+  // ribbon + synthesis
+  $('#r-cons-roi').textContent=pct(r.roi);
+  $('#r-cons-roi').className='v '+(r.roi>=0?'pos':'neg');
+  $('#s-c1').textContent=pct(r.roi);
+  updateCombined();
+}
+
+/* ---------- DECISION 2 : WCDC ---------- */
+const c2={open:true, sl:0.98, hold:7.5, fix:2300000};
+function groupCost(list,hub,z,hold){
+  if(!list.length) return {inv:0,rail:0,truck:0,mh:0,total:0,mean:0,safety:0,cycle:0};
+  const mean=list.reduce((s,d)=>s+d.mean,0);
+  const sd=Math.sqrt(list.reduce((s,d)=>s+d.sd*d.sd,0));
+  const sdM=sd/Math.sqrt(12), cycle=(mean/12)/2;
+  const safety=z*sdM*Math.sqrt(LEAD+REVIEW);
+  const inv=(cycle+safety)*hold;
+  let rail,truck,mh;
+  if(hub==='KC'){rail=mean*1570*RAIL; truck=list.reduce((s,d)=>s+d.mean*d.milesKC*TRUCK,0); mh=mean*VAR_KC;}
+  else {rail=0; truck=list.reduce((s,d)=>s+d.mean*d.milesWC*TRUCK,0); mh=mean*VAR_WC+WC_OPEX;}
+  return {inv,rail,truck,mh,total:inv+rail+truck+mh,mean,safety,cycle};
+}
+function calcC2(){
+  const z=normInv(c2.sl);
+  const baseline=groupCost(DCS,'KC',z,c2.hold); // today: all KC
+  const westList = c2.open ? DCS.filter(d=>d.west) : [];
+  const kcList   = c2.open ? DCS.filter(d=>!d.west) : DCS;
+  const KC=groupCost(kcList,'KC',z,c2.hold);
+  const WC=groupCost(westList,'WC',z,c2.hold);
+  const combined = c2.open ? KC.total+WC.total : KC.total;
+  const save = baseline.total - combined;
+  const roi = c2.open ? save/c2.fix : 0;
+  return {baseline,KC,WC,combined,save,roi,z,nWest:westList.length};
+}
+function drawC2Chart(r){
+  const svg=$('#c2-chart'); svg.innerHTML='';
+  const cats=[
+    {k:'Inventory', t:r.baseline.inv, n:r.KC.inv+r.WC.inv},
+    {k:'Rail',      t:r.baseline.rail,n:r.KC.rail+r.WC.rail},
+    {k:'Truck',     t:r.baseline.truck,n:r.KC.truck+r.WC.truck},
+    {k:'Handling',  t:r.baseline.mh,  n:r.KC.mh+r.WC.mh},
+  ];
+  const W=520,H=230, left=8, top=14, maxh=150, gap=120, x0=70, bw=26;
+  const max=Math.max(...cats.flatMap(c=>[c.t,c.n]));
+  const base=top+maxh;
+  svg.appendChild(el('line',{x1:x0-22,y1:base,x2:500,y2:base,stroke:'var(--line)','stroke-width':1.5}));
+  cats.forEach((c,i)=>{
+    const cx=x0+i*gap;
+    const ht=c.t/max*maxh, hn=c.n/max*maxh;
+    svg.appendChild(el('rect',{x:cx,y:base-ht,width:bw,height:ht,fill:'var(--slate-2)',rx:1,opacity:.55}));
+    const up=c.n>c.t+1;
+    svg.appendChild(el('rect',{x:cx+bw+6,y:base-hn,width:bw,height:hn,fill:up?'var(--red)':'var(--green)',rx:1}));
+    const l=el('text',{x:cx+bw+3,y:base+18,'text-anchor':'middle',class:'clbl'});l.textContent=c.k;svg.appendChild(l);
+    const dv=c.n-c.t; if(Math.abs(dv)>500){
+      const dt=el('text',{x:cx+bw+3,y:base-Math.max(ht,hn)-7,'text-anchor':'middle',class:'cval',fill:up?'var(--red)':'var(--green)'});
+      dt.textContent=(dv>0?'+':'−')+'$'+(Math.abs(dv)/1000).toFixed(0)+'k';svg.appendChild(dt);
+    }
+  });
+  // legend
+  [['var(--slate-2)','today (KC only)'],['var(--steel)','redesign']].forEach((s,i)=>{
+    svg.appendChild(el('rect',{x:380,y:top+i*18,width:12,height:12,fill:s[0],rx:2,opacity:i?1:.55}));
+    const t=el('text',{x:398,y:top+i*18+10,class:'clbl'});t.textContent=s[1];svg.appendChild(t);
+  });
+}
+function buildC2Table(r){
+  const tb=$('#c2-table tbody'); tb.innerHTML='';
+  const rows=[
+    ['Inventory', r.baseline.inv, r.KC.inv, r.WC.inv],
+    ['Rail',      r.baseline.rail, r.KC.rail, r.WC.rail],
+    ['Truck',     r.baseline.truck, r.KC.truck, r.WC.truck],
+    ['Handling',  r.baseline.mh, r.KC.mh, r.WC.mh],
+  ];
+  rows.forEach(([k,b,kc,wc])=>{
+    const tr=document.createElement('tr');
+    const dv=(kc+wc)-b; const cls=dv>1?'up':(dv<-1?'down':'');
+    tr.innerHTML=`<td>${k}</td><td>${fmt0(b)}</td><td>${fmt0(kc)}</td><td>${c2.open?fmt0(wc):'—'}</td>`+
+      `<td class="${cls} delta">${Math.abs(dv)<1?'—':(dv>0?'+':'−')+fmt0(Math.abs(dv)).slice(1)}</td>`;
+    tb.appendChild(tr);
+  });
+  const tot=document.createElement('tr'); tot.className='tot';
+  const dv=r.combined-r.baseline.total; const cls=dv>1?'up':(dv<-1?'down':'');
+  tot.innerHTML=`<td>Total</td><td>${fmt0(r.baseline.total)}</td><td>${fmt0(r.KC.total)}</td><td>${c2.open?fmt0(r.WC.total):'—'}</td>`+
+    `<td class="${cls} delta">${(dv>0?'+':'−')+fmt0(Math.abs(dv)).slice(1)}</td>`;
+  tb.appendChild(tot);
+}
+function renderC2(){
+  const r=calcC2();
+  $('#c2-sl-v').textContent=(c2.sl*100).toFixed(c2.sl*100%1?1:0)+'%';
+  $('#c2-hold-v').textContent='$'+c2.hold.toFixed(2)+'/cbm';
+  $('#c2-fix-v').textContent=fmtM(c2.fix);
+  $('#c2-open-sub').textContent = c2.open ? ('on · serving '+r.nWest+' DC'+(r.nWest!==1?'s':'')) : 'off · single national DC';
+  $('#c2-dcwrap').style.opacity = c2.open?1:.45;
+  $('#c2-dcwrap').style.pointerEvents = c2.open?'auto':'none';
+  $('#c2-save').textContent=fmt0(r.save);
+  $('#c2-save-sub').textContent='vs. '+fmtM(r.baseline.total)+' today';
+  $('#c2-roi').textContent = c2.open? pct(r.roi) : '—';
+  $('#c2-save-bar').style.width=Math.max(0,Math.min(100,r.save/1000000*100))+'%';
+  $('#c2-roi-bar').style.width=Math.max(0,Math.min(100,r.roi*100))+'%';
+  const kSave=$('#c2-save').closest('.kpi'); kSave.classList.toggle('good',r.save>=0); kSave.classList.toggle('bad',r.save<0);
+  const v=$('#c2-verdict');
+  if(!c2.open){v.className='verdict no';v.innerHTML='<b>Status quo.</b> Keep one national DC: maximum pooling, lowest safety stock — but West-Coast cargo keeps paying for the inland round-trip.';}
+  else if(r.roi>=0.15){const transp=(r.baseline.rail+r.baseline.truck)-(r.KC.rail+r.WC.rail+r.KC.truck+r.WC.truck);
+    v.className='verdict go';v.innerHTML='<b>Justified.</b> Transport drops '+fmt0(transp)+'; even after losing pooling, the network returns '+pct(r.roi)+' in year one.';}
+  else if(r.save>0){v.className='verdict no';v.innerHTML='<b>Weak.</b> It still saves '+fmt0(r.save)+', but the pooling and handling penalty has eaten most of the transport win — payback is slow.';}
+  else {v.className='verdict no';v.innerHTML='<b>Don\'t.</b> At this footprint the lost pooling and extra handling outweigh the transport saving — the redesign costs more than today.';}
+  drawC2Chart(r); buildC2Table(r);
+  // ribbon + synthesis + flow
+  $('#r-wc-roi').textContent=c2.open?pct(r.roi):'—';
+  $('#r-wc-roi').className='v '+(r.roi>=0?'pos':'neg');
+  $('#r-wc-scope').textContent = c2.open? ('serving '+DCS.filter(d=>d.west).map(d=>d.name.split(' ')[0]).join(', ')) : 'WCDC closed';
+  $('#r-net-cost').textContent=fmtM(r.combined);
+  $('#r-net-save').textContent=(r.save>=0?'−':'+')+fmtM(Math.abs(r.save)).slice(1)+' vs. today';
+  $('#s-c2').textContent=c2.open?pct(r.roi):'—';
+  $('#s-net').textContent=fmt0(r.save);
+  drawFlow(r);
+  updateCombined();
+}
+
+function updateCombined(){
+  const r1=calcC1(), r2=calcC2();
+  const both = r1.roi>=0.15 && (c2.open && r2.roi>=0.15);
+  let rec, recCombined;
+  if(r1.roi>=0.15 && c2.open && r2.roi>=0.15){rec='Pursue both';recCombined='Both pass';}
+  else if(r1.roi>=0.15 && !(c2.open&&r2.roi>=0.15)){rec='Consolidate only';recCombined='01 passes';}
+  else if(!(r1.roi>=0.15) && c2.open && r2.roi>=0.15){rec='Open WCDC only';recCombined='02 passes';}
+  else {rec='Re-examine';recCombined='Neither passes';}
+  $('#s-rec').textContent=rec;
+  $('#r-combined').textContent=recCombined;
+}
+
+/* ---------- DC chips ---------- */
+function buildChips(){
+  const wrap=$('#c2-dcs'); wrap.innerHTML='';
+  const check='<svg viewBox="0 0 12 12"><path d="M2 6.5L5 9L10 3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  DCS.forEach((d,i)=>{
+    const isLA = d.name==='Los Angeles';
+    const chip=document.createElement('label');
+    chip.className='dc-chip'+(d.west?(isLA?' lock':' on'):'');
+    chip.innerHTML=`<span class="box">${check}</span><span class="nm">${d.name}</span><span class="mi">${d.milesWC} mi · port</span>`;
+    const inp=document.createElement('input'); inp.type='checkbox'; inp.checked=d.west; if(isLA){inp.disabled=true;}
+    chip.prepend(inp);
+    chip.addEventListener('click',e=>{
+      if(isLA||!c2.open) return;
+      d.west=!d.west; inp.checked=d.west; chip.classList.toggle('on',d.west);
+      renderC2();
+    });
+    wrap.appendChild(chip);
+  });
+}
+
+/* ---------- FLOW schematic ---------- */
+const REDUCE_MOTION = (typeof window!=='undefined' && window.matchMedia) ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+function drawFlow(r){
+  const svg=$('#flow'); svg.innerHTML='';
+  const ink='var(--ink)',slate='var(--slate-2)',steel='var(--steel)',red='var(--red)',amber='var(--amber)',line='var(--line)';
+  // defs: arrow + animated dash
+  const defs=el('defs',{});
+  ['steel','red','amber'].forEach(c=>{
+    const m=el('marker',{id:'ar-'+c,viewBox:'0 0 10 10',refX:8,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'});
+    m.appendChild(el('path',{d:'M0 0L10 5L0 10z',fill:'var(--'+c+')'}));
+    defs.appendChild(m);
+  });
+  svg.appendChild(defs);
+  function node(x,y,w,h,label,sub,fill,stroke){
+    const g=el('g',{});
+    g.appendChild(el('rect',{x:x-w/2,y:y-h/2,width:w,height:h,rx:8,fill:fill||'var(--card)',stroke:stroke||line,'stroke-width':1.6}));
+    const t=el('text',{x,y:y+(sub?-2:4),'text-anchor':'middle','font-family':'var(--mono)','font-size':12,'font-weight':700,fill:ink});t.textContent=label;g.appendChild(t);
+    if(sub){const s=el('text',{x,y:y+12,'text-anchor':'middle','font-family':'var(--mono)','font-size':9.5,fill:slate});s.textContent=sub;g.appendChild(s);}
+    svg.appendChild(g); return g;
+  }
+  function flowPath(d,color,width,dashed,marker){
+    const p=el('path',{d:d,fill:'none',stroke:color,'stroke-width':width,'stroke-linecap':'round'});
+    if(marker)p.setAttribute('marker-end','url(#ar-'+marker+')');
+    if(dashed){p.setAttribute('stroke-dasharray','2 9');
+      const an=el('animate',{attributeName:'stroke-dashoffset',from:'22',to:'0',dur:'1.1s',repeatCount:'indefinite'});
+      if(!REDUCE_MOTION)p.appendChild(an);
+    }
+    svg.appendChild(p); return p;
+  }
+  function lbl(x,y,text,color,anchor){const t=el('text',{x,y,'text-anchor':anchor||'middle','font-family':'var(--mono)','font-size':10,fill:color||slate});t.textContent=text;svg.appendChild(t);return t;}
+
+  // layout columns
+  const xPort=90, xConsol=250, xCA=470, xKC=690, xDC=980, xWC=690;
+  // china ports (left)
+  const ports=['Shanghai','Yantian','Kaohsiung','Qingdao'];
+  ports.forEach((p,i)=>{const y=70+i*70; node(xPort,y, 96,30, p,null,'var(--card)',line);
+    // converge to consolidation
+    flowPath(`M${xPort+48} ${y} C ${xConsol-90} ${y}, ${xConsol-90} 175, ${xConsol-46} 175`, steel,1.6,true,null);
+  });
+  // consolidation node (highlight if cons active)
+  const consOn = c1.cons>0;
+  node(xConsol,175, 92,46,'Consol.',consOn?'China':'(direct)','var(--steel-soft)',steel);
+  lbl(xConsol,235,'Decision 01',steel);
+  // ocean to CA port
+  flowPath(`M${xConsol+46} 175 C ${xCA-110} 175, ${xCA-110} 175, ${xCA-52} 175`, steel,3,true,'steel');
+  lbl((xConsol+xCA)/2,160,'ocean',slate);
+  node(xCA,175, 100,46,'CA Port','Seattle/LA','var(--card)',ink);
+
+  // Kansas City
+  node(xKC,120, 110,52,'Kansas City','national DC','var(--card)',ink);
+  // CA -> KC rail (carries KC-served volume)
+  flowPath(`M${xCA+50} 168 C ${xKC-120} 130, ${xKC-120} 120, ${xKC-56} 120`, steel,3.4,true,'steel');
+  lbl((xCA+xKC)/2,108,'rail 1,570 mi',slate);
+
+  // right-side DC cluster (non-LA) — abstracted
+  node(xDC,120, 96,44,'GUS DCs','8 inland','var(--card)',line);
+  flowPath(`M${xKC+55} 120 L ${xDC-50} 120`, steel,2.2,false,'steel');
+
+  // ---- Los Angeles routing (the teaching point) ----
+  const laWest = DCS.find(d=>d.name==='Los Angeles').west && c2.open;
+  // LA node bottom-right
+  node(xDC,330, 96,44,'Los Angeles','50 mi · port','var(--card)', laWest?amber:red);
+  if(!laWest){
+    // double-haul: CA->KC (already) then KC down-and-back-out to LA, drawn red
+    flowPath(`M${xKC} 146 C ${xKC} 330, ${xKC} 330, ${xDC-50} 330`, red,2.6,true,'red');
+    lbl((xKC+xDC)/2,320,'double-haul 1,620 mi',red);
+  } else {
+    // re-routed: CA Port -> WCDC -> LA (short), amber
+    node(xWC,330, 104,46,'West-Coast DC','at the port','var(--amber-soft)',amber);
+    lbl(xWC,378,'Decision 02',amber);
+    flowPath(`M${xCA} 198 C ${xCA} 330, ${xCA} 330, ${xWC-54} 330`, amber,3,true,'amber');
+    flowPath(`M${xWC+54} 330 L ${xDC-50} 330`, amber,2.6,true,'amber');
+    lbl((xWC+xDC)/2+6,320,'50 mi',amber);
+  }
+  // dynamic caption
+  const note=$('#flow-note');
+  if(!laWest){
+    note.innerHTML='Today every container rails inland to <b>Kansas City</b> first — including West-Coast volume that then ships back out to <b>Los Angeles</b>. That red line is the same cargo paying for the trip twice.';
+  } else {
+    const extra=DCS.filter(d=>d.west&&d.name!=='Los Angeles').map(d=>d.name);
+    note.innerHTML='With the <b>West-Coast DC</b> open, cargo for '+
+      (extra.length? ('<b>'+['Los Angeles',...extra].join(', ')+'</b>') : '<b>Los Angeles</b>')+
+      ' comes off the boat and ships straight out — the inland round-trip (red) is gone. '+
+      (extra.length?'Note how reaching the added DCs from the port can cost more than the haul it replaced.':'');
+  }
+}
+
+/* ---------- wire controls ---------- */
+function bindRange(id,key,obj,scale,render){
+  const inp=$(id); setRangeFill(inp);
+  inp.addEventListener('input',()=>{obj[key]=scale(+inp.value); setRangeFill(inp); render();});
+}
+bindRange('#c1-cons','cons',c1,v=>v/100,renderC1);
+bindRange('#c1-util','util',c1,v=>v/100,renderC1);
+bindRange('#c1-opex','opex',c1,v=>v,renderC1);
+bindRange('#c1-fix','fix',c1,v=>v,renderC1);
+bindRange('#c1-dwell','dwell',c1,v=>v,renderC1);
+bindRange('#c1-mh','mh',c1,v=>v,renderC1);
+$('#c1-reset').addEventListener('click',()=>{
+  Object.assign(c1,{cons:0.85,util:0.96,opex:75000,fix:250000,dwell:7,mh:1.4});
+  [['#c1-cons',85],['#c1-util',96],['#c1-opex',75000],['#c1-fix',250000],['#c1-dwell',7],['#c1-mh',1.4]].forEach(([s,v])=>{$(s).value=v;setRangeFill($(s));});
+  renderC1();
+});
+
+bindRange('#c2-sl','sl',c2,v=>v/100,renderC2);
+bindRange('#c2-hold','hold',c2,v=>v,renderC2);
+bindRange('#c2-fix','fix',c2,v=>v,renderC2);
+$('#c2-open').addEventListener('change',e=>{c2.open=e.target.checked; renderC2();});
+$('#c2-reset').addEventListener('click',()=>{
+  Object.assign(c2,{open:true,sl:0.98,hold:7.5,fix:2300000});
+  DCS.forEach(d=>d.west=(d.name==='Los Angeles'));
+  $('#c2-open').checked=true;
+  [['#c2-sl',98],['#c2-hold',7.5],['#c2-fix',2300000]].forEach(([s,v])=>{$(s).value=v;setRangeFill($(s));});
+  buildChips(); renderC2();
+});
+
+/* ---------- init ---------- */
+buildChips();
+renderC1();
+renderC2();
+</script>
+</body>
+</html>
