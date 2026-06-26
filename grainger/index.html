@@ -243,7 +243,7 @@ footer .src b{color:var(--slate)}
         <div class="eyebrow">Live network routing</div>
         <h2 style="font-size:clamp(20px,2.6vw,26px);margin-top:6px">Network flow diagram</h2>
       </div>
-      <p class="flow-note" id="flow-note">Today every container rails inland to <b>Kansas City</b> first — including West-Coast volume that then turns around and ships back out to <b>Los Angeles</b>. That red line is the same cargo paying for the trip twice.</p>
+      <p class="flow-note" id="flow-note"> Use the Network Design controls below to "turn off" the West-Coast DC. This is Grainger's current supply chain, where every container rails inland to <b>Kansas City</b> first — including West-Coast volume that then turns around and ships back out to <b>Los Angeles</b>. That red line is the same cargo paying for the trip twice.</p>
     </div>
     <div class="flow-card">
       <svg id="flow" viewBox="0 0 1100 430" role="img" aria-label="Schematic of Grainger's container flow from China through US distribution centers"></svg>
@@ -344,9 +344,10 @@ footer .src b{color:var(--slate)}
 
     <div class="grid2">
       <div class="prose">
-        <p>Assign a DC to the WCDC and its cargo skips the inland round-trip — a big <b>transport</b> win for Los Angeles, which sits 50 miles from the port instead of 1,620 from Kansas City. But every DC you peel off shrinks Kansas City's pool, and a second stocking point needs its own safety stock.</p>
-        <p>Try <b>Los Angeles alone</b> first — the case's recommended pilot. Then add <b>Dallas</b> and watch the ROI fall: Dallas is cheap to reach from Kansas City but expensive to truck from the coast, so it gives back more than it saves.</p>
-        <div class="q"><b>The tension to surface in class:</b> transport cost wants <i>more</i> decentralization; inventory pooling and handling want <i>less</i>. The right answer is wherever the two curves cross.</div>
+        <p>Assigning a DC to the WCDC and its cargo skips the inland round-trip, which is a transport win for Grainger. But every DC assigned to the WCDC, reduces the inventory pooled in Kansas City increasing; the second stocking point 
+          (WCDC) also needs its own safety stock.</p>
+        <p>Try Los Angeles alone first as the DC assigned to WCDC. Then add Dallas (the ROI falls). Why? Dallas is cheap to reach from Kansas City but expensive to truck from the coast, so the savings reduce.</p>
+        <div class="q">The key tradeoff is that lower inland transport cost requires more decentralization; lower inventory and handling costs require more centralization.</div>
 
         <details class="math">
           <summary>Reveal the math</summary>
